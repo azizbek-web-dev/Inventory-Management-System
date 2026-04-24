@@ -5,6 +5,7 @@ import boxIcon from '../../assets/icons/package_box.svg'
 import itemThumb from '../../assets/images/unsplash_tpuAo8gVs58.png'
 import { Topbar } from '../../components/Topbar/Topbar'
 import { ToolFilterModal } from '../../components/ToolFilterModal/ToolFilterModal'
+import { AddToolDrawer } from '../../components/AddToolDrawer/AddToolDrawer'
 
 type ToolRow = {
   name: string
@@ -29,7 +30,7 @@ const ROWS: ToolRow[] = Array.from({ length: 10 }).map((_, i) => ({
 export function ToolsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [isCreate, setIsCreate] = useState(false)
+  const [isAddOpen, setIsAddOpen] = useState(false)
   const [draft, setDraft] = useState<ToolRow>({
     name: '',
     model: '',
@@ -41,16 +42,17 @@ export function ToolsPage() {
   })
 
   useEffect(() => {
-    if (!isModalOpen && !isFilterOpen) return
+    if (!isModalOpen && !isFilterOpen && !isAddOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsModalOpen(false)
         setIsFilterOpen(false)
+        setIsAddOpen(false)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isModalOpen, isFilterOpen])
+  }, [isModalOpen, isFilterOpen, isAddOpen])
 
   return (
     <>
@@ -59,7 +61,7 @@ export function ToolsPage() {
       <section className="items-card" aria-label="All tools">
         <div className="items-toolbar">
           <label className="items-search" aria-label="Search tool">
-            <input className="items-search-input" placeholder="Search Item" />
+            <input className="items-search-input" placeholder="Search Tool" />
           </label>
 
           <div className="items-actions">
@@ -70,18 +72,9 @@ export function ToolsPage() {
               className="items-btn items-btn--primary"
               type="button"
               onClick={() => {
-                setIsCreate(true)
+                setIsModalOpen(false)
                 setIsFilterOpen(false)
-                setDraft({
-                  name: '',
-                  model: '',
-                  type: '',
-                  store: 'HQ Main Store',
-                  amount: '',
-                  project: 'HQ',
-                  account: 'Activated',
-                })
-                setIsModalOpen(true)
+                setIsAddOpen(true)
               }}
             >
               <img className="items-btn-icon" src={addCircleIcon} alt="" aria-hidden="true" />
@@ -92,6 +85,7 @@ export function ToolsPage() {
               type="button"
               onClick={() => {
                 setIsModalOpen(false)
+                setIsAddOpen(false)
                 setIsFilterOpen(true)
               }}
             >
@@ -125,7 +119,7 @@ export function ToolsPage() {
                     const target = e.target as HTMLElement
                     if (target.tagName.toLowerCase() === 'input') return
                     setIsFilterOpen(false)
-                    setIsCreate(false)
+                    setIsAddOpen(false)
                     setDraft(r)
                     setIsModalOpen(true)
                   }}
@@ -192,9 +186,9 @@ export function ToolsPage() {
             if (e.target === e.currentTarget) setIsModalOpen(false)
           }}
         >
-          <div className="modal" role="dialog" aria-modal="true" aria-label={isCreate ? 'Add tool' : 'Edit tool'}>
+          <div className="modal" role="dialog" aria-modal="true" aria-label="Edit tool">
             <div className="modal-head">
-              <div className="modal-title">{isCreate ? 'Add Tool' : 'Edit Tool'}</div>
+              <div className="modal-title">Edit Tool</div>
             </div>
 
             <div className="modal-body">
@@ -289,6 +283,7 @@ export function ToolsPage() {
       ) : null}
 
       <ToolFilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <AddToolDrawer open={isAddOpen} onClose={() => setIsAddOpen(false)} />
     </>
   )
 }

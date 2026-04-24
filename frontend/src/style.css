@@ -316,7 +316,12 @@ body {
   background: #fff;
   padding: 12px 12px;
   font-size: 14px;
+  color: #1b2430;
   outline: none;
+}
+
+.input::placeholder {
+  color: rgba(27, 36, 48, 0.45);
 }
 
 .input:focus {
@@ -442,6 +447,7 @@ body {
   text-align: center;
   font-size: 16px;
   font-weight: 650;
+  color: #1b2430;
   outline: none;
 }
 

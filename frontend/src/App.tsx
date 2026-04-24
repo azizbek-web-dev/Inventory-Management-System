@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar/Sidebar'
 import { DashboardPage } from './pages/Dashboard/DashboardPage'
 import { ItemsPage } from './pages/Items/ItemsPage'
 import { ToolsPage } from './pages/Tools/ToolsPage'
+import { AssetsPage } from './pages/Assets/AssetsPage'
 
 export function App() {
   const [page, setPage] = useState('dashboard')
@@ -22,6 +23,8 @@ export function App() {
           <ItemsPage />
         ) : page === 'tools' ? (
           <ToolsPage />
+        ) : page === 'assets' ? (
+          <AssetsPage />
         ) : (
           <DashboardPage />
         )}

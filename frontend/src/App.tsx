@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Sidebar } from './components/Sidebar/Sidebar'
 import { DashboardPage } from './pages/Dashboard/DashboardPage'
 import { ItemsPage } from './pages/Items/ItemsPage'
+import { ToolsPage } from './pages/Tools/ToolsPage'
 
 export function App() {
   const [page, setPage] = useState('dashboard')
@@ -17,7 +18,13 @@ export function App() {
       <Sidebar activeKey={page} onSelect={setPage} />
 
       <main className="dash-main" aria-label="Main content">
-        {page === 'items' ? <ItemsPage /> : <DashboardPage />}
+        {page === 'items' ? (
+          <ItemsPage />
+        ) : page === 'tools' ? (
+          <ToolsPage />
+        ) : (
+          <DashboardPage />
+        )}
       </main>
     </div>
   )

@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'tools', label: 'Tools', icon: toolsIcon },
   { key: 'assets', label: 'Assets', icon: assetsIcon },
   { key: 'project', label: 'Project', icon: projectIcon },
-  { key: 'request', label: 'Request', icon: requestIcon },
+  { key: 'request', label: 'Requested & Returned', icon: requestIcon },
   { key: 'on-hand', label: 'On hand', icon: onHandIcon },
   { key: 'grn-report', label: 'GRN Report', icon: grnReportIcon },
 ]

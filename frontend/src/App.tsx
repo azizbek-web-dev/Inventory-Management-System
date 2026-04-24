@@ -7,6 +7,7 @@ import { AssetsPage } from './pages/Assets/AssetsPage'
 import { ProjectsPage } from './pages/Projects/ProjectsPage'
 import { ProjectDetailPage } from './pages/Projects/ProjectDetailPage'
 import type { ProjectSummary } from './pages/Projects/projectData'
+import { RequestPage } from './pages/Request/RequestPage'
 
 export function App() {
   const [page, setPage] = useState('dashboard')
@@ -39,6 +40,8 @@ export function App() {
           ) : (
             <ProjectsPage onOpenProject={setSelectedProject} />
           )
+        ) : page === 'request' ? (
+          <RequestPage />
         ) : (
           <DashboardPage />
         )}

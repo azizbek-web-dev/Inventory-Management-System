@@ -953,6 +953,14 @@ body {
   width: min(420px, 94vw);
 }
 
+.request-filter-modal {
+  width: min(440px, 94vw);
+}
+
+.request-page-tabs {
+  padding-top: 4px;
+}
+
 .asset-filter-body {
   display: grid;
   gap: 22px;

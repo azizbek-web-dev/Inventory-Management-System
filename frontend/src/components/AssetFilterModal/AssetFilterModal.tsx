@@ -1,17 +1,34 @@
 import { useEffect, useState } from 'react'
 
+export const ASSET_STORES = ['HQ Main Store', '22 House Store', 'Tafo House Store'] as const
+export type AssetStoreName = (typeof ASSET_STORES)[number]
+
+export type AssetRecordKind = 'item' | 'tool' | 'assets'
+
 export type AssetFilterCriteria = {
-  keyword: string
-  category: string
-  brand: string
-  status: string
+  /** Narrow to one store; empty uses only checkbox selection. */
+  storeDropdown: string
+  /** Include row if `storesChecked[row.store]` is true. */
+  storesChecked: Record<AssetStoreName, boolean>
+  /** Empty = any kind; otherwise match `row.recordType`. */
+  recordType: '' | AssetRecordKind
 }
 
-const defaultCriteria: AssetFilterCriteria = {
-  keyword: '',
-  category: '',
-  brand: '',
-  status: '',
+export function defaultAssetFilters(): AssetFilterCriteria {
+  return {
+    storeDropdown: '',
+    storesChecked: {
+      'HQ Main Store': true,
+      '22 House Store': true,
+      'Tafo House Store': true,
+    },
+    recordType: '',
+  }
+}
+
+function filtersEqual(a: AssetFilterCriteria, b: AssetFilterCriteria): boolean {
+  if (a.storeDropdown !== b.storeDropdown || a.recordType !== b.recordType) return false
+  return ASSET_STORES.every((s) => a.storesChecked[s] === b.storesChecked[s])
 }
 
 type AssetFilterModalProps = {
@@ -30,81 +47,96 @@ export function AssetFilterModal({ open, applied, onClose, onApply }: AssetFilte
 
   if (!open) return null
 
+  const toggleStore = (name: AssetStoreName) => {
+    setDraft((p) => ({
+      ...p,
+      storesChecked: { ...p.storesChecked, [name]: !p.storesChecked[name] },
+    }))
+  }
+
   return (
     <div
-      className="modal-overlay"
+      className="modal-overlay modal-overlay--blur"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className="modal modal--wide" role="dialog" aria-modal="true" aria-label="Filter assets">
+      <div className="modal asset-filter-modal" role="dialog" aria-modal="true" aria-label="Filter">
         <div className="modal-head">
-          <div className="modal-title">Filter assets</div>
+          <div className="modal-title">Filter</div>
         </div>
 
-        <div className="modal-body">
-          <div className="filter-assets-grid">
-            <label className="batch-field filter-assets-field--full">
-              <span className="batch-label">Search</span>
-              <input
-                className="modal-input"
-                value={draft.keyword}
-                onChange={(e) => setDraft((p) => ({ ...p, keyword: e.target.value }))}
-                placeholder="Name, ID, or serial number"
-              />
-            </label>
-
-            <label className="batch-field">
-              <span className="batch-label">Category</span>
+        <div className="modal-body asset-filter-body">
+          <div className="asset-filter-section">
+            <div className="asset-filter-label">Store</div>
+            <label className="asset-filter-select-wrap">
+              <span className="sr-only">Select store</span>
               <select
-                className="modal-input"
-                value={draft.category}
-                onChange={(e) => setDraft((p) => ({ ...p, category: e.target.value }))}
+                className="modal-input asset-filter-select"
+                value={draft.storeDropdown}
+                onChange={(e) => setDraft((p) => ({ ...p, storeDropdown: e.target.value }))}
+                aria-label="Select store"
               >
-                <option value="">Any category</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Furniture">Furniture</option>
-                <option value="Network">Network</option>
-                <option value="Power">Power</option>
+                <option value="">Select store</option>
+                {ASSET_STORES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </label>
 
-            <label className="batch-field">
-              <span className="batch-label">Brand</span>
-              <select
-                className="modal-input"
-                value={draft.brand}
-                onChange={(e) => setDraft((p) => ({ ...p, brand: e.target.value }))}
-              >
-                <option value="">Any brand</option>
-                <option value="Dell">Dell</option>
-                <option value="HP">HP</option>
-                <option value="Lenovo">Lenovo</option>
-                <option value="Cisco">Cisco</option>
-              </select>
-            </label>
+            <ul className="asset-filter-store-list" aria-label="Stores to include">
+              {ASSET_STORES.map((name) => (
+                <li key={name}>
+                  <label className="asset-filter-check">
+                    <input
+                      type="checkbox"
+                      checked={draft.storesChecked[name]}
+                      onChange={() => toggleStore(name)}
+                    />
+                    <span>{name}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            <label className="batch-field filter-assets-field--full">
-              <span className="batch-label">Status</span>
-              <select
-                className="modal-input"
-                value={draft.status}
-                onChange={(e) => setDraft((p) => ({ ...p, status: e.target.value }))}
-              >
-                <option value="">Any status</option>
-                <option value="Available">Available</option>
-                <option value="In use">In use</option>
-                <option value="Maintenance">Maintenance</option>
-              </select>
-            </label>
+          <div className="asset-filter-section">
+            <div className="asset-filter-label">Select Type</div>
+            <div className="asset-filter-type-row" role="radiogroup" aria-label="Record type">
+              {(
+                [
+                  { value: 'item' as const, label: 'Item' },
+                  { value: 'tool' as const, label: 'Tool' },
+                  { value: 'assets' as const, label: 'Assets' },
+                ] as const
+              ).map(({ value, label }) => (
+                <label key={value} className="asset-filter-radio">
+                  <input
+                    type="radio"
+                    name="asset-record-type"
+                    checked={draft.recordType === value}
+                    onChange={() => setDraft((p) => ({ ...p, recordType: value }))}
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+              <label className="asset-filter-radio asset-filter-radio--muted">
+                <input
+                  type="radio"
+                  name="asset-record-type"
+                  checked={draft.recordType === ''}
+                  onChange={() => setDraft((p) => ({ ...p, recordType: '' }))}
+                />
+                <span>Any</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <div className="modal-footer modal-footer--center">
-          <button className="modal-btn" type="button" onClick={() => setDraft(defaultCriteria)}>
-            Clear all
-          </button>
+        <div className="modal-footer modal-footer--split">
           <button className="modal-btn" type="button" onClick={onClose}>
             Cancel
           </button>
@@ -116,10 +148,17 @@ export function AssetFilterModal({ open, applied, onClose, onApply }: AssetFilte
               onClose()
             }}
           >
-            Apply filters
+            Apply
           </button>
         </div>
       </div>
     </div>
   )
+}
+
+export function assetFiltersActive(f: AssetFilterCriteria): boolean {
+  const def = defaultAssetFilters()
+  if (f.storeDropdown) return true
+  if (f.recordType) return true
+  return !filtersEqual(f, def)
 }

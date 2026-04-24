@@ -1082,6 +1082,212 @@ body {
   font-size: 13px;
 }
 
+.project-grid-wrap {
+  padding: 8px 14px 18px;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.project-card:hover {
+  border-color: rgba(13, 102, 194, 0.35);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.project-card-head {
+  display: grid;
+  gap: 8px;
+}
+
+.project-card-line {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.project-card-k {
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.project-card-code {
+  color: #0d66c2;
+  font-weight: 800;
+}
+
+.project-card-client {
+  color: #0d66c2;
+  font-weight: 650;
+}
+
+.project-card-team {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+}
+
+.project-card-member {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+  color: rgba(15, 23, 42, 0.45);
+  font-size: 11px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.project-card-member-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.project-card-member-name {
+  font-size: 12px;
+  font-weight: 750;
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.project-card-member-role {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.project-card-progress {
+  margin-top: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(13, 102, 194, 0.12);
+  overflow: hidden;
+}
+
+.project-card-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #0d66c2;
+  transition: width 0.25s ease;
+}
+
+.project-back {
+  border: none;
+  background: none;
+  padding: 4px 14px 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: #0d66c2;
+  cursor: pointer;
+  text-align: left;
+}
+
+.project-back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.project-detail-title {
+  margin: 4px 0 4px;
+  padding: 0 14px 12px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.project-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.project-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+
+.project-tab-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.55;
+}
+
+.project-tab.is-active {
+  color: #0d66c2;
+  border-bottom-color: #0d66c2;
+}
+
+.project-tab.is-active .project-tab-icon {
+  opacity: 1;
+}
+
+.project-detail-toolbar {
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.account-pill {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.account-pill--ok {
+  color: #15803d;
+}
+
+.account-pill--invite {
+  color: #c2410c;
+}
+
 .asset-desc-modal {
   width: min(720px, 94vw);
   max-width: 100%;

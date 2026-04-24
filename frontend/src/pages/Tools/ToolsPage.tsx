@@ -4,6 +4,7 @@ import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
 import itemThumb from '../../assets/images/unsplash_tpuAo8gVs58.png'
 import { Topbar } from '../../components/Topbar/Topbar'
+import { FilterModal } from '../../components/FilterModal/FilterModal'
 
 type ToolRow = {
   name: string
@@ -27,6 +28,7 @@ const ROWS: ToolRow[] = Array.from({ length: 10 }).map((_, i) => ({
 
 export function ToolsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isCreate, setIsCreate] = useState(false)
   const [draft, setDraft] = useState<ToolRow>({
     name: '',
@@ -39,13 +41,16 @@ export function ToolsPage() {
   })
 
   useEffect(() => {
-    if (!isModalOpen) return
+    if (!isModalOpen && !isFilterOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsModalOpen(false)
+      if (e.key === 'Escape') {
+        setIsModalOpen(false)
+        setIsFilterOpen(false)
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isModalOpen])
+  }, [isModalOpen, isFilterOpen])
 
   return (
     <>
@@ -66,6 +71,7 @@ export function ToolsPage() {
               type="button"
               onClick={() => {
                 setIsCreate(true)
+                setIsFilterOpen(false)
                 setDraft({
                   name: '',
                   model: '',
@@ -81,7 +87,14 @@ export function ToolsPage() {
               <img className="items-btn-icon" src={addCircleIcon} alt="" aria-hidden="true" />
               <span>Add Tool</span>
             </button>
-            <button className="items-btn" type="button">
+            <button
+              className="items-btn"
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false)
+                setIsFilterOpen(true)
+              }}
+            >
               <img className="items-btn-icon" src={filterIcon} alt="" aria-hidden="true" />
               <span>Filter</span>
             </button>
@@ -111,6 +124,7 @@ export function ToolsPage() {
                   onClick={(e) => {
                     const target = e.target as HTMLElement
                     if (target.tagName.toLowerCase() === 'input') return
+                    setIsFilterOpen(false)
                     setIsCreate(false)
                     setDraft(r)
                     setIsModalOpen(true)
@@ -273,6 +287,8 @@ export function ToolsPage() {
           </div>
         </div>
       ) : null}
+
+      <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
     </>
   )
 }

@@ -4,6 +4,7 @@ import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
 import itemThumb from '../../assets/images/unsplash_tpuAo8gVs58.png'
 import { Topbar } from '../../components/Topbar/Topbar'
+import { FilterModal } from '../../components/FilterModal/FilterModal'
 
 type ItemRow = {
   name: string
@@ -27,6 +28,7 @@ const ROWS: ItemRow[] = Array.from({ length: 10 }).map((_, i) => ({
 
 export function ItemsPage() {
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [draft, setDraft] = useState<ItemRow>({
     name: '',
     model: '',
@@ -38,13 +40,16 @@ export function ItemsPage() {
   })
 
   useEffect(() => {
-    if (!isEditOpen) return
+    if (!isEditOpen && !isFilterOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsEditOpen(false)
+      if (e.key === 'Escape') {
+        setIsEditOpen(false)
+        setIsFilterOpen(false)
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isEditOpen])
+  }, [isEditOpen, isFilterOpen])
 
   return (
     <>
@@ -68,20 +73,12 @@ export function ItemsPage() {
               className="items-btn"
               type="button"
               onClick={() => {
-                setDraft({
-                  name: '',
-                  model: '',
-                  type: '',
-                  store: 'HQ Main Store',
-                  amount: '',
-                  project: 'HQ',
-                  account: 'Activated',
-                })
-                setIsEditOpen(true)
+                setIsEditOpen(false)
+                setIsFilterOpen(true)
               }}
             >
               <img className="items-btn-icon" src={filterIcon} alt="" aria-hidden="true" />
-              <span>Edit Item</span>
+              <span>Filter</span>
             </button>
           </div>
         </div>
@@ -109,6 +106,7 @@ export function ItemsPage() {
                   onClick={(e) => {
                     const target = e.target as HTMLElement
                     if (target.tagName.toLowerCase() === 'input') return
+                    setIsFilterOpen(false)
                     setDraft(r)
                     setIsEditOpen(true)
                   }}
@@ -274,6 +272,8 @@ export function ItemsPage() {
           </div>
         </div>
       ) : null}
+
+      <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
     </>
   )
 }

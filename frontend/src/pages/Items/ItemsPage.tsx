@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import addCircleIcon from '../../assets/icons/add-circle.svg'
 import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
@@ -26,24 +26,25 @@ const ROWS: ItemRow[] = Array.from({ length: 10 }).map((_, i) => ({
 }))
 
 export function ItemsPage() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [selectedStores, setSelectedStores] = useState<Record<string, boolean>>({
-    'HQ Main Store': true,
-    '22 House Store': false,
-    'Tafo House Store': false,
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [draft, setDraft] = useState<ItemRow>({
+    name: '',
+    model: '',
+    type: '',
+    store: 'HQ Main Store',
+    amount: '',
+    project: 'HQ',
+    account: 'Activated',
   })
-  const [storeMode, setStoreMode] = useState<'office' | 'home'>('office')
-
-  const storeOptions = useMemo(() => Object.keys(selectedStores), [selectedStores])
 
   useEffect(() => {
-    if (!isFilterOpen) return
+    if (!isEditOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsFilterOpen(false)
+      if (e.key === 'Escape') setIsEditOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isFilterOpen])
+  }, [isEditOpen])
 
   return (
     <>
@@ -63,9 +64,24 @@ export function ItemsPage() {
               <img className="items-btn-icon" src={addCircleIcon} alt="" aria-hidden="true" />
               <span>Add Item</span>
             </button>
-            <button className="items-btn" type="button" onClick={() => setIsFilterOpen(true)}>
+            <button
+              className="items-btn"
+              type="button"
+              onClick={() => {
+                setDraft({
+                  name: '',
+                  model: '',
+                  type: '',
+                  store: 'HQ Main Store',
+                  amount: '',
+                  project: 'HQ',
+                  account: 'Activated',
+                })
+                setIsEditOpen(true)
+              }}
+            >
               <img className="items-btn-icon" src={filterIcon} alt="" aria-hidden="true" />
-              <span>Filter</span>
+              <span>Edit Item</span>
             </button>
           </div>
         </div>
@@ -87,7 +103,16 @@ export function ItemsPage() {
             </thead>
             <tbody>
               {ROWS.map((r, idx) => (
-                <tr key={`${r.name}-${idx}`}>
+                <tr
+                  key={`${r.name}-${idx}`}
+                  className="items-row"
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement
+                    if (target.tagName.toLowerCase() === 'input') return
+                    setDraft(r)
+                    setIsEditOpen(true)
+                  }}
+                >
                   <td className="items-col-check">
                     <input type="checkbox" aria-label={`Select row ${idx + 1}`} />
                   </td>
@@ -142,80 +167,108 @@ export function ItemsPage() {
         </div>
       </section>
 
-      {isFilterOpen ? (
+      {isEditOpen ? (
         <div
           className="modal-overlay"
           role="presentation"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setIsFilterOpen(false)
+            if (e.target === e.currentTarget) setIsEditOpen(false)
           }}
         >
-          <div className="modal" role="dialog" aria-modal="true" aria-label="Filter">
+          <div className="modal" role="dialog" aria-modal="true" aria-label="Edit item">
             <div className="modal-head">
-              <div className="modal-title">Filter</div>
+              <div className="modal-title">Edit Item</div>
             </div>
 
             <div className="modal-body">
-              <div className="modal-section">
-                <div className="modal-label">Store</div>
-                <div className="modal-select">
-                  <span className="modal-select-placeholder">Select store</span>
-                  <span className="modal-select-chevron" aria-hidden="true">
-                    ▾
-                  </span>
-                </div>
+              <form className="modal-form" onSubmit={(e) => e.preventDefault()}>
+                <label className="modal-field">
+                  <span className="modal-label">Item Name</span>
+                  <input
+                    className="modal-input"
+                    value={draft.name}
+                    onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Item name"
+                  />
+                </label>
 
-                <div className="modal-checks">
-                  {storeOptions.map((name) => (
-                    <label key={name} className="modal-check">
-                      <input
-                        type="checkbox"
-                        checked={!!selectedStores[name]}
-                        onChange={(e) =>
-                          setSelectedStores((prev) => ({ ...prev, [name]: e.target.checked }))
-                        }
-                      />
-                      <span>{name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+                <label className="modal-field">
+                  <span className="modal-label">Model</span>
+                  <input
+                    className="modal-input"
+                    value={draft.model}
+                    onChange={(e) => setDraft((p) => ({ ...p, model: e.target.value }))}
+                    placeholder="G-7893"
+                  />
+                </label>
 
-              <div className="modal-section">
-                <div className="modal-label">Select store</div>
-                <div className="modal-radios" role="radiogroup" aria-label="Store mode">
-                  <label className="modal-radio">
-                    <input
-                      type="radio"
-                      name="storeMode"
-                      checked={storeMode === 'office'}
-                      onChange={() => setStoreMode('office')}
-                    />
-                    <span>Office</span>
-                  </label>
-                  <label className="modal-radio">
-                    <input
-                      type="radio"
-                      name="storeMode"
-                      checked={storeMode === 'home'}
-                      onChange={() => setStoreMode('home')}
-                    />
-                    <span>Work from Home</span>
-                  </label>
-                </div>
-              </div>
+                <label className="modal-field">
+                  <span className="modal-label">Type</span>
+                  <input
+                    className="modal-input"
+                    value={draft.type}
+                    onChange={(e) => setDraft((p) => ({ ...p, type: e.target.value }))}
+                    placeholder="IE Project Items"
+                  />
+                </label>
+
+                <label className="modal-field">
+                  <span className="modal-label">Store</span>
+                  <select
+                    className="modal-input"
+                    value={draft.store}
+                    onChange={(e) => setDraft((p) => ({ ...p, store: e.target.value }))}
+                  >
+                    <option value="HQ Main Store">HQ Main Store</option>
+                    <option value="22 House Store">22 House Store</option>
+                    <option value="Tafo House Store">Tafo House Store</option>
+                  </select>
+                </label>
+
+                <label className="modal-field">
+                  <span className="modal-label">Amount</span>
+                  <input
+                    className="modal-input"
+                    value={draft.amount}
+                    onChange={(e) => setDraft((p) => ({ ...p, amount: e.target.value }))}
+                    placeholder="5 pcs"
+                  />
+                </label>
+
+                <label className="modal-field">
+                  <span className="modal-label">Project</span>
+                  <input
+                    className="modal-input"
+                    value={draft.project}
+                    onChange={(e) => setDraft((p) => ({ ...p, project: e.target.value }))}
+                    placeholder="HQ"
+                  />
+                </label>
+
+                <label className="modal-field">
+                  <span className="modal-label">Account</span>
+                  <select
+                    className="modal-input"
+                    value={draft.account}
+                    onChange={(e) => setDraft((p) => ({ ...p, account: e.target.value }))}
+                  >
+                    <option value="Activated">Activated</option>
+                    <option value="Need Invitation">Need Invitation</option>
+                  </select>
+                </label>
+              </form>
             </div>
 
             <div className="modal-footer">
-              <button className="modal-btn" type="button" onClick={() => setIsFilterOpen(false)}>
+              <button className="modal-btn" type="button" onClick={() => setIsEditOpen(false)}>
                 Cancel
               </button>
               <button
                 className="modal-btn modal-btn--primary"
                 type="button"
-                onClick={() => setIsFilterOpen(false)}
+                onClick={() => setIsEditOpen(false)}
               >
-                Apply
+                Save
               </button>
             </div>
           </div>

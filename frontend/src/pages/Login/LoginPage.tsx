@@ -1,10 +1,63 @@
 import { useId, useState } from 'react'
 import logo from '../../assets/logo.png'
 
+type Screen = 'login' | 'forgotPassword'
+
 export function LoginPage() {
   const emailId = useId()
   const passwordId = useId()
   const [showPassword, setShowPassword] = useState(false)
+  const [screen, setScreen] = useState<Screen>('login')
+
+  if (screen === 'forgotPassword') {
+    return (
+      <div className="login-layout">
+        <div className="login-left" aria-hidden="true" />
+
+        <div className="login-right">
+          <div className="login-card">
+            <button type="button" className="back-btn" onClick={() => setScreen('login')}>
+              <span aria-hidden="true">‹</span>
+              <span>Back</span>
+            </button>
+
+            <div className="login-header">
+              <h1 className="login-title">Forgot Password</h1>
+              <p className="login-subtitle">
+                Enter your registered email address, we'll send you a code to reset your password.
+              </p>
+            </div>
+
+            <form
+              className="login-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+              }}
+            >
+              <div className="field">
+                <label className="label" htmlFor={emailId}>
+                  Email Address
+                </label>
+                <input
+                  id={emailId}
+                  className="input"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              <button className="primary-btn" type="submit">
+                Send OTP
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="login-layout">
@@ -91,9 +144,9 @@ export function LoginPage() {
                 <input type="checkbox" name="remember" defaultChecked />
                 <span>Remember Me</span>
               </label>
-              <a className="link" href="#" onClick={(e) => e.preventDefault()}>
+              <button type="button" className="link-btn" onClick={() => setScreen('forgotPassword')}>
                 Forgot Password?
-              </a>
+              </button>
             </div>
 
             <button className="primary-btn" type="submit">

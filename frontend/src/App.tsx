@@ -1,6 +1,6 @@
-import { LoginPage } from './pages/Login/LoginPage'
+import { DashboardPage } from './pages/Dashboard/DashboardPage'
 
 export function App() {
-  return <LoginPage />
+  return <DashboardPage />
 }
 

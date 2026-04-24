@@ -4,7 +4,7 @@ import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
 import itemThumb from '../../assets/images/unsplash_tpuAo8gVs58.png'
 import { Topbar } from '../../components/Topbar/Topbar'
-import { FilterModal } from '../../components/FilterModal/FilterModal'
+import { ItemFilterModal } from '../../components/ItemFilterModal/ItemFilterModal'
 
 type ItemRow = {
   name: string
@@ -273,7 +273,7 @@ export function ItemsPage() {
         </div>
       ) : null}
 
-      <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <ItemFilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
     </>
   )
 }

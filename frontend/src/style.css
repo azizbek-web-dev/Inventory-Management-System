@@ -989,6 +989,68 @@ body {
   color: #fff;
 }
 
+.modal--wide {
+  width: 760px;
+  max-width: 100%;
+}
+
+.modal-footer--center {
+  justify-content: center;
+}
+
+.batch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.batch-field {
+  display: grid;
+  gap: 6px;
+}
+
+.batch-label {
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.batch-required {
+  color: #d92d20;
+}
+
+.batch-error {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #d92d20;
+}
+
+.chip-grid {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 2px;
+}
+
+.chip {
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: #fff;
+  color: rgba(15, 23, 42, 0.55);
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip.is-selected {
+  border-color: rgba(13, 102, 194, 0.65);
+  color: #0d66c2;
+  box-shadow: 0 0 0 3px rgba(13, 102, 194, 0.12);
+}
+
 .dash-card {
   border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -1143,6 +1205,10 @@ body {
   }
 
   .modal-form {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-grid {
     grid-template-columns: 1fr;
   }
 }

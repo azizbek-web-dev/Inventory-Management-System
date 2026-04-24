@@ -233,3 +233,180 @@ body {
     min-height: unset;
   }
 }
+
+.login-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  background: #f3f6f9;
+}
+
+.login-left {
+  margin: 24px;
+  border-radius: 22px;
+  background: #eef3f7;
+}
+
+.login-right {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.login-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.login-brand-name {
+  color: #1b2430;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.login-header {
+  margin-bottom: 18px;
+}
+
+.login-title {
+  margin: 0;
+  color: #1b2430;
+  font-size: 26px;
+  font-weight: 750;
+}
+
+.login-subtitle {
+  margin: 6px 0 0;
+  color: #7a8794;
+  font-size: 13px;
+}
+
+.login-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  color: #7a8794;
+  font-size: 12px;
+}
+
+.input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(17, 62, 95, 0.28);
+  background: #fff;
+  padding: 12px 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(17, 119, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(17, 119, 255, 0.12);
+}
+
+.input-with-action {
+  position: relative;
+}
+
+.input-with-action .input {
+  padding-right: 44px;
+}
+
+.icon-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #7a8794;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.icon-btn:hover {
+  background: rgba(27, 36, 48, 0.06);
+  color: #1b2430;
+}
+
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1b2430;
+  font-size: 13px;
+}
+
+.checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+.link {
+  color: #1177ff;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.primary-btn {
+  margin-top: 6px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #0d66c2;
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #0b5ab0;
+}
+
+@media (max-width: 900px) {
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+  .login-left {
+    display: none;
+  }
+  .login-right {
+    padding: 20px;
+  }
+}

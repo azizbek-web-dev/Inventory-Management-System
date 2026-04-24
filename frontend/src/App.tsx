@@ -8,6 +8,7 @@ import { ProjectsPage } from './pages/Projects/ProjectsPage'
 import { ProjectDetailPage } from './pages/Projects/ProjectDetailPage'
 import type { ProjectSummary } from './pages/Projects/projectData'
 import { RequestPage } from './pages/Request/RequestPage'
+import { OnHandPage } from './pages/OnHand/OnHandPage'
 
 export function App() {
   const [page, setPage] = useState('dashboard')
@@ -42,6 +43,8 @@ export function App() {
           )
         ) : page === 'request' ? (
           <RequestPage />
+        ) : page === 'on-hand' ? (
+          <OnHandPage />
         ) : (
           <DashboardPage />
         )}

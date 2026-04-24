@@ -410,8 +410,44 @@ body {
   font-size: 13px;
 }
 
+.back-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
 .back-btn:hover {
   text-decoration: underline;
+}
+
+.login-email {
+  color: #1b2430;
+  font-weight: 600;
+}
+
+.otp {
+  display: grid;
+  grid-template-columns: repeat(5, 44px);
+  gap: 10px;
+  justify-content: start;
+  margin: 8px 0 6px;
+}
+
+.otp-input {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(17, 62, 95, 0.28);
+  background: #fff;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 650;
+  outline: none;
+}
+
+.otp-input:focus {
+  border-color: rgba(17, 119, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(17, 119, 255, 0.12);
 }
 
 .primary-btn {

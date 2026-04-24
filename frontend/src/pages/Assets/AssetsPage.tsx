@@ -9,17 +9,18 @@ import editIcon from '../../assets/icons/edit.svg'
 import trashIcon from '../../assets/icons/trash.svg'
 import { Topbar } from '../../components/Topbar/Topbar'
 import {
-  AssetFilterModal,
-  assetFiltersActive,
-  defaultAssetFilters,
-  type AssetFilterCriteria,
-  type AssetRecordKind,
-  type AssetStoreName,
-} from '../../components/AssetFilterModal/AssetFilterModal'
+  BatchRequestAssetsModal,
+  batchAssetsFilterActive,
+  emptyBatchAssetsApplied,
+  type BatchAssetsApplied,
+} from '../../components/BatchRequestAssetsModal/BatchRequestAssetsModal'
+import { AddAssetDrawer, type AssetStoreName, type NewAssetPayload } from '../../components/AddAssetDrawer/AddAssetDrawer'
 import {
   AssetDescriptionModal,
   type AssetDescriptionData,
 } from '../../components/AssetDescriptionModal/AssetDescriptionModal'
+
+type AssetRecordKind = 'item' | 'tool' | 'assets'
 
 type AssetRow = {
   id: string
@@ -74,10 +75,22 @@ function initialRows(): AssetRow[] {
   })
 }
 
-function rowMatchesFilters(row: AssetRow, f: AssetFilterCriteria): boolean {
-  if (f.storeDropdown && row.store !== f.storeDropdown) return false
-  if (!f.storesChecked[row.store]) return false
-  if (f.recordType && row.recordType !== f.recordType) return false
+function normName(s: string) {
+  return s.toLowerCase().replace(/\s+/g, ' ').trim()
+}
+
+function rowMatchesBatch(row: AssetRow, b: BatchAssetsApplied): boolean {
+  if (!b.enabled) return true
+  if (row.store !== b.store) return false
+  if (b.category && row.type !== b.category) return false
+  if (b.assetClass) {
+    const want: AssetRecordKind =
+      b.assetClass === 'fixed' ? 'assets' : b.assetClass === 'consumable' ? 'item' : 'tool'
+    if (row.recordType !== want) return false
+  }
+  if (b.chipNames.length) {
+    if (!b.chipNames.some((c) => normName(c) === normName(row.name))) return false
+  }
   return true
 }
 
@@ -113,9 +126,34 @@ const emptyLineDraft = (): LineDraft => ({
   account: 'Activated',
 })
 
+function appendRowFromPayload(prev: AssetRow[], p: NewAssetPayload): AssetRow[] {
+  const histLabel = p.store === '22 House Store' ? '22 Store' : p.store
+  return [
+    ...prev,
+    {
+      id: `AST-${Date.now()}`,
+      recordType: p.recordType,
+      name: p.name,
+      model: p.model,
+      type: p.type,
+      store: p.store,
+      amount: p.amount,
+      project: p.project,
+      account: p.account,
+      purchaseDate: p.purchaseDate,
+      longDescription: p.longDescription,
+      history: [
+        { label: histLabel, state: 'done' },
+        { label: 'Order Received', state: 'pending' },
+        { label: 'Delivery', state: 'pending' },
+      ],
+    },
+  ]
+}
+
 export function AssetsPage() {
   const [rows, setRows] = useState<AssetRow[]>(initialRows)
-  const [filters, setFilters] = useState<AssetFilterCriteria>(() => defaultAssetFilters())
+  const [batchFilter, setBatchFilter] = useState<BatchAssetsApplied>(() => emptyBatchAssetsApplied())
   const [listSearch, setListSearch] = useState('')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isDescOpen, setIsDescOpen] = useState(false)
@@ -124,16 +162,14 @@ export function AssetsPage() {
   const [editIndex, setEditIndex] = useState<number | null>(null)
   const [descData, setDescData] = useState<AssetDescriptionData | null>(null)
   const [editDraft, setEditDraft] = useState<LineDraft>(emptyLineDraft())
-  const [addDraft, setAddDraft] = useState<LineDraft>(emptyLineDraft())
-  const [addKind, setAddKind] = useState<AssetRecordKind>('assets')
 
-  const filteredByModal = useMemo(() => rows.filter((r) => rowMatchesFilters(r, filters)), [rows, filters])
+  const filteredByModal = useMemo(() => rows.filter((r) => rowMatchesBatch(r, batchFilter)), [rows, batchFilter])
   const visibleRows = useMemo(
     () => filteredByModal.filter((r) => matchesListSearch(r, listSearch)),
     [filteredByModal, listSearch],
   )
 
-  const filterBtnActive = assetFiltersActive(filters)
+  const filterBtnActive = batchAssetsFilterActive(batchFilter)
 
   useEffect(() => {
     if (!isFilterOpen && !isDescOpen && !isEditOpen && !isAddOpen) return
@@ -185,8 +221,6 @@ export function AssetsPage() {
                 setIsDescOpen(false)
                 setIsEditOpen(false)
                 setEditIndex(null)
-                setAddDraft(emptyLineDraft())
-                setAddKind('assets')
                 setIsAddOpen(true)
               }}
             >
@@ -369,11 +403,21 @@ export function AssetsPage() {
         </div>
       </section>
 
-      <AssetFilterModal
+      <BatchRequestAssetsModal
         open={isFilterOpen}
-        applied={filters}
+        applied={batchFilter}
         onClose={() => setIsFilterOpen(false)}
-        onApply={setFilters}
+        onApply={setBatchFilter}
+        onClearFilters={() => setBatchFilter(emptyBatchAssetsApplied())}
+      />
+
+      <AddAssetDrawer
+        open={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        onAdd={(p) => {
+          setRows((prev) => appendRowFromPayload(prev, p))
+          setIsAddOpen(false)
+        }}
       />
 
       <AssetDescriptionModal open={isDescOpen} data={descData} onClose={() => setIsDescOpen(false)} />
@@ -514,156 +558,6 @@ export function AssetsPage() {
                   }
                   setIsEditOpen(false)
                   setEditIndex(null)
-                }}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {isAddOpen ? (
-        <div
-          className="modal-overlay"
-          role="presentation"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-              setIsAddOpen(false)
-            }
-          }}
-        >
-          <div className="modal" role="dialog" aria-modal="true" aria-label="Add asset">
-            <div className="modal-head">
-              <div className="modal-title">Add Asset</div>
-            </div>
-
-            <div className="modal-body">
-              <form className="modal-form" onSubmit={(e) => e.preventDefault()}>
-                <label className="modal-field">
-                  <span className="modal-label">Record type</span>
-                  <select
-                    className="modal-input"
-                    value={addKind}
-                    onChange={(e) => setAddKind(e.target.value as AssetRecordKind)}
-                  >
-                    <option value="assets">Assets</option>
-                    <option value="item">Item</option>
-                    <option value="tool">Tool</option>
-                  </select>
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Asset name</span>
-                  <input
-                    className="modal-input"
-                    value={addDraft.name}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="Asset name"
-                  />
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Model</span>
-                  <input
-                    className="modal-input"
-                    value={addDraft.model}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, model: e.target.value }))}
-                    placeholder="G-7893"
-                  />
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Type</span>
-                  <input
-                    className="modal-input"
-                    value={addDraft.type}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, type: e.target.value }))}
-                    placeholder="IE Project Items"
-                  />
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Store</span>
-                  <select
-                    className="modal-input"
-                    value={addDraft.store}
-                    onChange={(e) =>
-                      setAddDraft((p) => ({ ...p, store: e.target.value as AssetStoreName }))
-                    }
-                  >
-                    <option value="HQ Main Store">HQ Main Store</option>
-                    <option value="22 House Store">22 House Store</option>
-                    <option value="Tafo House Store">Tafo House Store</option>
-                  </select>
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Amount</span>
-                  <input
-                    className="modal-input"
-                    value={addDraft.amount}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, amount: e.target.value }))}
-                    placeholder="1 pcs"
-                  />
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Project</span>
-                  <input
-                    className="modal-input"
-                    value={addDraft.project}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, project: e.target.value }))}
-                    placeholder="HQ"
-                  />
-                </label>
-
-                <label className="modal-field">
-                  <span className="modal-label">Account</span>
-                  <select
-                    className="modal-input"
-                    value={addDraft.account}
-                    onChange={(e) => setAddDraft((p) => ({ ...p, account: e.target.value }))}
-                  >
-                    <option value="Activated">Activated</option>
-                    <option value="Need Invitation">Need Invitation</option>
-                  </select>
-                </label>
-              </form>
-            </div>
-
-            <div className="modal-footer">
-              <button className="modal-btn" type="button" onClick={() => setIsAddOpen(false)}>
-                Cancel
-              </button>
-              <button
-                className="modal-btn modal-btn--primary"
-                type="button"
-                onClick={() => {
-                  const name = addDraft.name.trim() || 'New asset'
-                  const histLabel = addDraft.store === '22 House Store' ? '22 Store' : addDraft.store
-                  setRows((prev) => [
-                    ...prev,
-                    {
-                      id: `AST-${Date.now()}`,
-                      recordType: addKind,
-                      name,
-                      model: addDraft.model.trim() || '—',
-                      type: addDraft.type.trim() || 'IE Project Items',
-                      store: addDraft.store,
-                      amount: addDraft.amount.trim() || '1 pcs',
-                      project: addDraft.project.trim() || 'HQ',
-                      account: addDraft.account,
-                      purchaseDate: 'Unknown',
-                      longDescription: 'Unknown',
-                      history: [
-                        { label: histLabel, state: 'done' },
-                        { label: 'Order Received', state: 'pending' },
-                        { label: 'Delivery', state: 'pending' },
-                      ],
-                    },
-                  ])
-                  setIsAddOpen(false)
                 }}
               >
                 Save

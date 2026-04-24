@@ -1498,6 +1498,53 @@ body {
   color: #d92d20;
 }
 
+.batch-asset-class {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: center;
+  margin-top: 4px;
+  padding: 4px 0 2px;
+}
+
+.batch-asset-class-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.batch-asset-class-option input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  accent-color: #0d66c2;
+  cursor: pointer;
+}
+
+.batch-asset-class-option--muted {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.batch-clear-link {
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 12px;
+  font-weight: 650;
+  color: #0d66c2;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.batch-clear-link:hover {
+  color: #0a5299;
+}
+
 .chip-grid {
   margin-top: 12px;
   display: flex;

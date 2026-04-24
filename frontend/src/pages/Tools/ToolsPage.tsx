@@ -3,9 +3,13 @@ import addCircleIcon from '../../assets/icons/add-circle.svg'
 import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
 import itemThumb from '../../assets/images/unsplash_tpuAo8gVs58.png'
+import eyeIcon from '../../assets/icons/eye.svg'
+import editIcon from '../../assets/icons/edit.svg'
+import trashIcon from '../../assets/icons/trash.svg'
 import { Topbar } from '../../components/Topbar/Topbar'
 import { ToolFilterModal } from '../../components/ToolFilterModal/ToolFilterModal'
 import { AddToolDrawer } from '../../components/AddToolDrawer/AddToolDrawer'
+import { EntityViewModal } from '../../components/EntityViewModal/EntityViewModal'
 
 type ToolRow = {
   name: string
@@ -17,7 +21,7 @@ type ToolRow = {
   account: string
 }
 
-const ROWS: ToolRow[] = Array.from({ length: 10 }).map((_, i) => ({
+const INITIAL_ROWS: ToolRow[] = Array.from({ length: 10 }).map((_, i) => ({
   name: i === 0 ? 'Gas Kitting' : 'Condet',
   model: i % 2 ? 'Co-7898' : 'G-7893',
   type: 'IE Project Items',
@@ -28,7 +32,10 @@ const ROWS: ToolRow[] = Array.from({ length: 10 }).map((_, i) => ({
 }))
 
 export function ToolsPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [rows, setRows] = useState<ToolRow[]>(INITIAL_ROWS)
+  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isViewOpen, setIsViewOpen] = useState(false)
+  const [editIndex, setEditIndex] = useState<number | null>(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [draft, setDraft] = useState<ToolRow>({
@@ -42,17 +49,19 @@ export function ToolsPage() {
   })
 
   useEffect(() => {
-    if (!isModalOpen && !isFilterOpen && !isAddOpen) return
+    if (!isEditOpen && !isViewOpen && !isFilterOpen && !isAddOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsModalOpen(false)
+        setIsEditOpen(false)
+        setEditIndex(null)
+        setIsViewOpen(false)
         setIsFilterOpen(false)
         setIsAddOpen(false)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isModalOpen, isFilterOpen, isAddOpen])
+  }, [isEditOpen, isViewOpen, isFilterOpen, isAddOpen])
 
   return (
     <>
@@ -72,7 +81,8 @@ export function ToolsPage() {
               className="items-btn items-btn--primary"
               type="button"
               onClick={() => {
-                setIsModalOpen(false)
+                setIsEditOpen(false)
+                setIsViewOpen(false)
                 setIsFilterOpen(false)
                 setIsAddOpen(true)
               }}
@@ -84,7 +94,8 @@ export function ToolsPage() {
               className="items-btn"
               type="button"
               onClick={() => {
-                setIsModalOpen(false)
+                setIsEditOpen(false)
+                setIsViewOpen(false)
                 setIsAddOpen(false)
                 setIsFilterOpen(true)
               }}
@@ -95,12 +106,19 @@ export function ToolsPage() {
           </div>
         </div>
 
-        <div className="items-table-wrap">
-          <table className="items-table" aria-label="Tools table">
+        <div className="items-table-wrap items-table-wrap--dark">
+          <table className="items-table items-table--dark" aria-label="Tools table">
             <thead>
               <tr>
                 <th className="items-col-check" aria-label="Select" />
-                <th>Tools name</th>
+                <th>
+                  <span className="th-sort">
+                    Tools name
+                    <span className="th-sort-icon" aria-hidden="true">
+                      ⇅
+                    </span>
+                  </span>
+                </th>
                 <th>Image</th>
                 <th>Model</th>
                 <th>Type</th>
@@ -108,22 +126,12 @@ export function ToolsPage() {
                 <th>Amount</th>
                 <th>Project</th>
                 <th>Account</th>
+                <th className="items-col-action">Action</th>
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((r, idx) => (
-                <tr
-                  key={`${r.name}-${idx}`}
-                  className="items-row"
-                  onClick={(e) => {
-                    const target = e.target as HTMLElement
-                    if (target.tagName.toLowerCase() === 'input') return
-                    setIsFilterOpen(false)
-                    setIsAddOpen(false)
-                    setDraft(r)
-                    setIsModalOpen(true)
-                  }}
-                >
+              {rows.map((r, idx) => (
+                <tr key={`${idx}-${r.name}-${r.model}`}>
                   <td className="items-col-check">
                     <input type="checkbox" aria-label={`Select row ${idx + 1}`} />
                   </td>
@@ -137,6 +145,54 @@ export function ToolsPage() {
                   <td>{r.amount}</td>
                   <td>{r.project}</td>
                   <td>{r.account}</td>
+                  <td className="items-col-action">
+                    <div className="row-actions" role="group" aria-label="Row actions">
+                      <button
+                        type="button"
+                        className="row-action row-action--view"
+                        aria-label="View"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsEditOpen(false)
+                          setEditIndex(null)
+                          setIsFilterOpen(false)
+                          setIsAddOpen(false)
+                          setDraft(r)
+                          setIsViewOpen(true)
+                        }}
+                      >
+                        <img src={eyeIcon} alt="" />
+                      </button>
+                      <button
+                        type="button"
+                        className="row-action row-action--edit"
+                        aria-label="Edit"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setIsViewOpen(false)
+                          setIsFilterOpen(false)
+                          setIsAddOpen(false)
+                          setEditIndex(idx)
+                          setDraft(r)
+                          setIsEditOpen(true)
+                        }}
+                      >
+                        <img src={editIcon} alt="" />
+                      </button>
+                      <button
+                        type="button"
+                        className="row-action row-action--delete"
+                        aria-label="Delete"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!window.confirm('Delete this tool?')) return
+                          setRows((prev) => prev.filter((_, i) => i !== idx))
+                        }}
+                      >
+                        <img src={trashIcon} alt="" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -153,7 +209,9 @@ export function ToolsPage() {
             </select>
           </div>
 
-          <div className="items-footer-center items-muted">Showing 1 to 10 out of 40 records</div>
+          <div className="items-footer-center items-muted">
+            Showing 1 to {rows.length} out of 40 records
+          </div>
 
           <div className="items-footer-right">
             <button className="items-page-btn" type="button" aria-label="Previous page">
@@ -178,12 +236,15 @@ export function ToolsPage() {
         </div>
       </section>
 
-      {isModalOpen ? (
+      {isEditOpen ? (
         <div
           className="modal-overlay"
           role="presentation"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setIsModalOpen(false)
+            if (e.target === e.currentTarget) {
+              setIsEditOpen(false)
+              setEditIndex(null)
+            }
           }}
         >
           <div className="modal" role="dialog" aria-modal="true" aria-label="Edit tool">
@@ -271,16 +332,44 @@ export function ToolsPage() {
             </div>
 
             <div className="modal-footer">
-              <button className="modal-btn" type="button" onClick={() => setIsModalOpen(false)}>
+              <button
+                className="modal-btn"
+                type="button"
+                onClick={() => {
+                  setIsEditOpen(false)
+                  setEditIndex(null)
+                }}
+              >
                 Cancel
               </button>
-              <button className="modal-btn modal-btn--primary" type="button" onClick={() => setIsModalOpen(false)}>
+              <button
+                className="modal-btn modal-btn--primary"
+                type="button"
+                onClick={() => {
+                  if (editIndex !== null) {
+                    setRows((prev) => {
+                      const next = [...prev]
+                      next[editIndex] = { ...draft }
+                      return next
+                    })
+                  }
+                  setIsEditOpen(false)
+                  setEditIndex(null)
+                }}
+              >
                 Save
               </button>
             </div>
           </div>
         </div>
       ) : null}
+
+      <EntityViewModal
+        open={isViewOpen}
+        title="View Tool"
+        row={draft}
+        onClose={() => setIsViewOpen(false)}
+      />
 
       <ToolFilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       <AddToolDrawer open={isAddOpen} onClose={() => setIsAddOpen(false)} />

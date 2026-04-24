@@ -769,6 +769,135 @@ body {
   width: 44px;
 }
 
+.items-col-action {
+  width: 120px;
+  text-align: right;
+}
+
+.items-table-wrap--dark {
+  border-top-color: rgba(148, 163, 184, 0.15);
+  background: #0a0a0a;
+}
+
+.items-table--dark thead th {
+  background: #fff;
+  color: #0f172a;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 12px;
+}
+
+.items-table--dark tbody td {
+  background: #0a0a0a;
+  color: rgba(186, 210, 255, 0.88);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.items-table--dark .items-thumb {
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.items-table--dark .items-col-check input[type='checkbox'] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(148, 163, 184, 0.55);
+  background: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.items-table--dark .items-col-check input[type='checkbox']:checked {
+  border-color: #38bdf8;
+  background: radial-gradient(circle, #38bdf8 45%, transparent 46%);
+}
+
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.th-sort-icon {
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(15, 23, 42, 0.45);
+  font-weight: 700;
+}
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.row-action {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.row-action img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.row-action--view {
+  background: #e6a800;
+}
+
+.row-action--edit {
+  background: #0d66c2;
+}
+
+.row-action--delete {
+  background: #dc2626;
+}
+
+.row-action:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.9);
+  outline-offset: 2px;
+}
+
+.view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.view-kv {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.view-kv--full {
+  grid-column: 1 / -1;
+}
+
+.view-k {
+  font-size: 11px;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.55);
+  margin-bottom: 4px;
+}
+
+.view-v {
+  font-size: 13px;
+  font-weight: 650;
+  color: #0f172a;
+}
+
 .items-thumb {
   width: 34px;
   height: 22px;

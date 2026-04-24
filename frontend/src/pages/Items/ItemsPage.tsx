@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import addCircleIcon from '../../assets/icons/add-circle.svg'
 import filterIcon from '../../assets/icons/filter.svg'
 import boxIcon from '../../assets/icons/package_box.svg'
@@ -25,6 +26,25 @@ const ROWS: ItemRow[] = Array.from({ length: 10 }).map((_, i) => ({
 }))
 
 export function ItemsPage() {
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedStores, setSelectedStores] = useState<Record<string, boolean>>({
+    'HQ Main Store': true,
+    '22 House Store': false,
+    'Tafo House Store': false,
+  })
+  const [storeMode, setStoreMode] = useState<'office' | 'home'>('office')
+
+  const storeOptions = useMemo(() => Object.keys(selectedStores), [selectedStores])
+
+  useEffect(() => {
+    if (!isFilterOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFilterOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isFilterOpen])
+
   return (
     <>
       <Topbar title="All Items" subtitle="Items detail Information" />
@@ -43,7 +63,7 @@ export function ItemsPage() {
               <img className="items-btn-icon" src={addCircleIcon} alt="" aria-hidden="true" />
               <span>Add Item</span>
             </button>
-            <button className="items-btn" type="button">
+            <button className="items-btn" type="button" onClick={() => setIsFilterOpen(true)}>
               <img className="items-btn-icon" src={filterIcon} alt="" aria-hidden="true" />
               <span>Filter</span>
             </button>
@@ -121,6 +141,86 @@ export function ItemsPage() {
           </div>
         </div>
       </section>
+
+      {isFilterOpen ? (
+        <div
+          className="modal-overlay"
+          role="presentation"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setIsFilterOpen(false)
+          }}
+        >
+          <div className="modal" role="dialog" aria-modal="true" aria-label="Filter">
+            <div className="modal-head">
+              <div className="modal-title">Filter</div>
+            </div>
+
+            <div className="modal-body">
+              <div className="modal-section">
+                <div className="modal-label">Store</div>
+                <div className="modal-select">
+                  <span className="modal-select-placeholder">Select store</span>
+                  <span className="modal-select-chevron" aria-hidden="true">
+                    ▾
+                  </span>
+                </div>
+
+                <div className="modal-checks">
+                  {storeOptions.map((name) => (
+                    <label key={name} className="modal-check">
+                      <input
+                        type="checkbox"
+                        checked={!!selectedStores[name]}
+                        onChange={(e) =>
+                          setSelectedStores((prev) => ({ ...prev, [name]: e.target.checked }))
+                        }
+                      />
+                      <span>{name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="modal-section">
+                <div className="modal-label">Select store</div>
+                <div className="modal-radios" role="radiogroup" aria-label="Store mode">
+                  <label className="modal-radio">
+                    <input
+                      type="radio"
+                      name="storeMode"
+                      checked={storeMode === 'office'}
+                      onChange={() => setStoreMode('office')}
+                    />
+                    <span>Office</span>
+                  </label>
+                  <label className="modal-radio">
+                    <input
+                      type="radio"
+                      name="storeMode"
+                      checked={storeMode === 'home'}
+                      onChange={() => setStoreMode('home')}
+                    />
+                    <span>Work from Home</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="modal-btn" type="button" onClick={() => setIsFilterOpen(false)}>
+                Cancel
+              </button>
+              <button
+                className="modal-btn modal-btn--primary"
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   )
 }

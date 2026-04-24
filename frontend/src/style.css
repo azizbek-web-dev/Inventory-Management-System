@@ -824,6 +824,132 @@ body {
   color: #0f172a;
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.modal {
+  width: 420px;
+  max-width: 100%;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+
+.modal-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.modal-body {
+  padding: 14px 16px 6px;
+  display: grid;
+  gap: 14px;
+}
+
+.modal-section {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-label {
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.modal-select {
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.modal-select-placeholder {
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.modal-select-chevron {
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.modal-checks {
+  display: grid;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.modal-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.modal-check input {
+  width: 16px;
+  height: 16px;
+}
+
+.modal-radios {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 4px;
+}
+
+.modal-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(15, 23, 42, 0.78);
+}
+
+.modal-footer {
+  padding: 14px 16px 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  height: 40px;
+  min-width: 120px;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  color: rgba(15, 23, 42, 0.78);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.modal-btn--primary {
+  background: #0d66c2;
+  border-color: #0d66c2;
+  color: #fff;
+}
+
 .dash-card {
   border-radius: 14px;
   border: 1px solid rgba(15, 23, 42, 0.08);

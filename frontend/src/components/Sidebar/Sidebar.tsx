@@ -17,6 +17,11 @@ type NavItem = {
   icon: string
 }
 
+type SidebarProps = {
+  activeKey?: string
+  onSelect?: (key: string) => void
+}
+
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', icon: appsIcon },
   { key: 'items', label: 'Items', icon: shoppingBagIcon },
@@ -34,8 +39,8 @@ function getInitialTheme(): Theme {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export function Sidebar() {
-  const [activeKey, setActiveKey] = useState<string>('dashboard')
+export function Sidebar({ activeKey: controlledActiveKey, onSelect }: SidebarProps) {
+  const [internalActiveKey, setInternalActiveKey] = useState<string>('dashboard')
   const [theme, setTheme] = useState<Theme>(() => getInitialTheme())
 
   useEffect(() => {
@@ -44,6 +49,7 @@ export function Sidebar() {
   }, [theme])
 
   const navItems = useMemo(() => NAV_ITEMS, [])
+  const activeKey = controlledActiveKey ?? internalActiveKey
 
   return (
     <aside className="sidebar" aria-label="Sidebar navigation">
@@ -61,7 +67,10 @@ export function Sidebar() {
               key={item.key}
               type="button"
               className={item.key === activeKey ? 'nav-item is-active' : 'nav-item'}
-              onClick={() => setActiveKey(item.key)}
+              onClick={() => {
+                setInternalActiveKey(item.key)
+                onSelect?.(item.key)
+              }}
             >
               <span className="nav-item-icon" aria-hidden="true">
                 <img src={item.icon} alt="" />

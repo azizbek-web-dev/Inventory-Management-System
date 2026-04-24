@@ -961,6 +961,12 @@ body {
   padding-top: 4px;
 }
 
+.request-returned-empty {
+  min-height: 320px;
+  background: #fff;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
 .asset-filter-body {
   display: grid;
   gap: 22px;

@@ -26,7 +26,7 @@ type RequestRow = {
   requester: string
 }
 
-function buildRows(tab: RequestTab): RequestRow[] {
+function buildRequestedRows(): RequestRow[] {
   return Array.from({ length: 12 }).map((_, i) => {
     const name = i === 0 ? 'Gas Kitting' : 'Condet'
     const recordType: RequestRecordKind = i % 5 === 1 ? 'item' : i % 5 === 2 ? 'tool' : 'assets'
@@ -41,7 +41,7 @@ function buildRows(tab: RequestTab): RequestRow[] {
       store,
       amount: i % 3 === 0 ? '1 pcs' : i % 2 ? '3 pcs' : '5 pcs',
       project: 'HQ',
-      requester: tab === 'returned' && i % 4 === 0 ? 'Store Lead' : 'HQ',
+      requester: 'HQ',
     }
   })
 }
@@ -49,7 +49,6 @@ function buildRows(tab: RequestTab): RequestRow[] {
 function rowMatchesFilter(row: RequestRow, f: RequestFilterState | null): boolean {
   if (!f) return true
   if (f.storeDropdown && row.store !== f.storeDropdown) return false
-  if (!f.storesChecked[row.store]) return false
   if (f.recordType && row.recordType !== f.recordType) return false
   return true
 }
@@ -72,21 +71,24 @@ function downloadCsv(filename: string, rows: RequestRow[]) {
 
 export function RequestPage() {
   const [tab, setTab] = useState<RequestTab>('requested')
-  const [requestedRows] = useState(() => buildRows('requested'))
-  const [returnedRows] = useState(() => buildRows('returned'))
+  const [requestedRows] = useState(buildRequestedRows)
   const [listSearch, setListSearch] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
   const [filterSpec, setFilterSpec] = useState<RequestFilterState | null>(null)
 
-  const baseRows = tab === 'requested' ? requestedRows : returnedRows
+  useEffect(() => {
+    setFilterSpec(null)
+    setListSearch('')
+  }, [tab])
 
   const visibleRows = useMemo(() => {
+    if (tab === 'returned') return []
     const q = listSearch.trim().toLowerCase()
     const byFilter = (r: RequestRow) => rowMatchesFilter(r, filterSpec)
     const bySearch = (r: RequestRow) =>
       !q || `${r.name} ${r.model} ${r.type} ${r.requester}`.toLowerCase().includes(q)
-    return baseRows.filter(byFilter).filter(bySearch)
-  }, [baseRows, listSearch, filterSpec])
+    return requestedRows.filter(byFilter).filter(bySearch)
+  }, [tab, requestedRows, listSearch, filterSpec])
 
   useEffect(() => {
     if (!filterOpen) return
@@ -97,9 +99,12 @@ export function RequestPage() {
     return () => window.removeEventListener('keydown', onKey)
   }, [filterOpen])
 
+  const topTitle = tab === 'requested' ? 'Requested' : 'Returned'
+  const totalCount = tab === 'requested' ? 12 : 0
+
   return (
     <>
-      <Topbar title="Requested" subtitle="Items detail Information" />
+      <Topbar title={topTitle} subtitle="Items detail Information" />
 
       <section className="items-card request-page-card" aria-label="Requested and returned">
         <div className="project-tabs request-page-tabs" role="tablist">
@@ -132,6 +137,7 @@ export function RequestPage() {
               placeholder="Search Item"
               value={listSearch}
               onChange={(e) => setListSearch(e.target.value)}
+              disabled={tab === 'returned'}
             />
           </label>
 
@@ -140,7 +146,10 @@ export function RequestPage() {
               type="button"
               className="items-btn items-btn--primary"
               onClick={() =>
-                downloadCsv(tab === 'requested' ? 'requested.csv' : 'returned.csv', visibleRows)
+                downloadCsv(
+                  tab === 'requested' ? 'requested.csv' : 'returned.csv',
+                  visibleRows,
+                )
               }
             >
               <img className="items-btn-icon" src={downloadIcon} alt="" aria-hidden="true" />
@@ -157,54 +166,68 @@ export function RequestPage() {
           </div>
         </div>
 
-        <div className="items-table-wrap items-table-wrap--assets">
-          <table className="items-table items-table--assets" aria-label="Request list">
-            <thead>
-              <tr>
-                <th className="items-col-check" aria-label="Select" />
-                <th>
-                  <span className="th-sort">
-                    Item Name
-                    <span className="th-sort-icon" aria-hidden="true">
-                      ⇅
+        {tab === 'requested' ? (
+          <div className="items-table-wrap items-table-wrap--assets">
+            <table className="items-table items-table--assets" aria-label="Requested list">
+              <thead>
+                <tr>
+                  <th className="items-col-check" aria-label="Select" />
+                  <th>
+                    <span className="th-sort">
+                      Item Name
+                      <span className="th-sort-icon" aria-hidden="true">
+                        ⇅
+                      </span>
                     </span>
-                  </span>
-                </th>
-                <th>Image</th>
-                <th>Model</th>
-                <th>Type</th>
-                <th>Store</th>
-                <th>Amount</th>
-                <th>Project</th>
-                <th>Requester</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleRows.map((r, idx) => (
-                <tr key={`${tab}-${idx}-${r.name}`}>
-                  <td className="items-col-check">
-                    <input type="checkbox" aria-label={`Select ${r.name}`} />
-                  </td>
-                  <td>{r.name}</td>
-                  <td>
-                    <img className="items-thumb" src={itemThumb} alt="" />
-                  </td>
-                  <td>{r.model}</td>
-                  <td>{r.type}</td>
-                  <td>{r.store}</td>
-                  <td>{r.amount}</td>
-                  <td>{r.project}</td>
-                  <td>{r.requester}</td>
+                  </th>
+                  <th>Image</th>
+                  <th>Model</th>
+                  <th>Type</th>
+                  <th>Store</th>
+                  <th>Amount</th>
+                  <th>Project</th>
+                  <th>Requester</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {visibleRows.map((r, idx) => (
+                  <tr key={`requested-${idx}-${r.name}`}>
+                    <td className="items-col-check">
+                      <input type="checkbox" aria-label={`Select ${r.name}`} />
+                    </td>
+                    <td>{r.name}</td>
+                    <td>
+                      <img className="items-thumb" src={itemThumb} alt="" />
+                    </td>
+                    <td>{r.model}</td>
+                    <td>{r.type}</td>
+                    <td>{r.store}</td>
+                    <td>{r.amount}</td>
+                    <td>{r.project}</td>
+                    <td>{r.requester}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div
+            className="request-returned-empty"
+            role="region"
+            aria-label="Returned items"
+            aria-live="polite"
+          />
+        )}
 
         <div className="items-footer" aria-label="Pagination">
           <div className="items-footer-left">
             <span className="items-muted">Showing</span>
-            <select className="items-select" defaultValue="6" aria-label="Rows per page">
+            <select
+              className="items-select"
+              defaultValue="6"
+              aria-label="Rows per page"
+              disabled={tab === 'returned'}
+            >
               <option value="6">6</option>
               <option value="10">10</option>
               <option value="12">12</option>
@@ -216,26 +239,28 @@ export function RequestPage() {
               <span
                 className="items-footer-progress-fill"
                 style={{
-                  width: `${visibleRows.length ? Math.min(100, Math.round((visibleRows.length / 12) * 100)) : 0}%`,
+                  width: `${totalCount && visibleRows.length ? Math.min(100, Math.round((visibleRows.length / totalCount) * 100)) : 0}%`,
                 }}
               />
             </div>
             <div className="items-muted items-footer-summary">
-              Showing 1 to {visibleRows.length} out of 12 projects
+              {tab === 'returned'
+                ? 'Showing 0 out of 0 projects'
+                : `Showing 1 to ${visibleRows.length} out of ${totalCount} projects`}
             </div>
           </div>
 
           <div className="items-footer-right">
-            <button className="items-page-btn" type="button" aria-label="Previous page">
+            <button className="items-page-btn" type="button" aria-label="Previous page" disabled={tab === 'returned'}>
               ‹
             </button>
-            <button className="items-page is-active" type="button">
+            <button className="items-page is-active" type="button" disabled={tab === 'returned'}>
               1
             </button>
-            <button className="items-page" type="button">
+            <button className="items-page" type="button" disabled={tab === 'returned'}>
               2
             </button>
-            <button className="items-page-btn" type="button" aria-label="Next page">
+            <button className="items-page-btn" type="button" aria-label="Next page" disabled={tab === 'returned'}>
               ›
             </button>
           </div>
@@ -247,7 +272,6 @@ export function RequestPage() {
         applied={filterSpec}
         onClose={() => setFilterOpen(false)}
         onApply={setFilterSpec}
-        onClear={() => setFilterSpec(null)}
       />
     </>
   )

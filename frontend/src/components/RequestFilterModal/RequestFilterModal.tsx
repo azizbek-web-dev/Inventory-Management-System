@@ -7,35 +7,29 @@ export type RequestRecordKind = 'item' | 'tool' | 'assets'
 
 export type RequestFilterState = {
   storeDropdown: string
-  storesChecked: Record<RequestStoreKey, boolean>
   recordType: '' | RequestRecordKind
 }
 
 export function defaultRequestFilter(): RequestFilterState {
   return {
     storeDropdown: '',
-    storesChecked: {
-      'HQ Main Store': true,
-      '22 House Store': false,
-      'Tafo House Store': true,
-    },
     recordType: '',
   }
 }
 
 export function requestFilterActive(f: RequestFilterState | null): boolean {
-  return f !== null
+  if (!f) return false
+  return !!f.storeDropdown || !!f.recordType
 }
 
 type RequestFilterModalProps = {
   open: boolean
   applied: RequestFilterState | null
   onClose: () => void
-  onApply: (next: RequestFilterState) => void
-  onClear: () => void
+  onApply: (next: RequestFilterState | null) => void
 }
 
-export function RequestFilterModal({ open, applied, onClose, onApply, onClear }: RequestFilterModalProps) {
+export function RequestFilterModal({ open, applied, onClose, onApply }: RequestFilterModalProps) {
   const [draft, setDraft] = useState<RequestFilterState>(defaultRequestFilter())
 
   useEffect(() => {
@@ -44,13 +38,6 @@ export function RequestFilterModal({ open, applied, onClose, onApply, onClear }:
   }, [open, applied])
 
   if (!open) return null
-
-  const toggleStore = (name: RequestStoreKey) => {
-    setDraft((p) => ({
-      ...p,
-      storesChecked: { ...p.storesChecked, [name]: !p.storesChecked[name] },
-    }))
-  }
 
   return (
     <div
@@ -83,21 +70,6 @@ export function RequestFilterModal({ open, applied, onClose, onApply, onClear }:
                 ))}
               </select>
             </label>
-
-            <ul className="asset-filter-store-list" aria-label="Stores to include">
-              {REQUEST_STORES.map((name) => (
-                <li key={name}>
-                  <label className="asset-filter-check">
-                    <input
-                      type="checkbox"
-                      checked={draft.storesChecked[name]}
-                      onChange={() => toggleStore(name)}
-                    />
-                    <span>{name}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div className="asset-filter-section">
@@ -131,17 +103,6 @@ export function RequestFilterModal({ open, applied, onClose, onApply, onClear }:
               </label>
             </div>
           </div>
-
-          <button
-            type="button"
-            className="batch-clear-link"
-            onClick={() => {
-              onClear()
-              onClose()
-            }}
-          >
-            Clear filters
-          </button>
         </div>
 
         <div className="modal-footer modal-footer--split">
@@ -152,7 +113,8 @@ export function RequestFilterModal({ open, applied, onClose, onApply, onClear }:
             className="modal-btn modal-btn--primary"
             type="button"
             onClick={() => {
-              onApply(draft)
+              const hasCriteria = !!draft.storeDropdown.trim() || !!draft.recordType
+              onApply(hasCriteria ? draft : null)
               onClose()
             }}
           >
